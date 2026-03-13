@@ -1,18 +1,357 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
   <head>
     <meta charset="utf-8">
-    <title>Hello, World! - A-Frame</title>
-    <meta name="description" content="Hello, World! - A-Frame">
-    <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Опросник по недопустимым событиям</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f7fb;
+        --surface: #ffffff;
+        --line: #d7deea;
+        --text: #1e293b;
+        --muted: #64748b;
+        --accent: #2563eb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1150px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(1.4rem, 2.6vw, 2rem);
+      }
+
+      .subtitle {
+        margin: 0 0 24px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 950px;
+      }
+
+      thead {
+        background: #eef3ff;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+        padding: 14px;
+        text-align: left;
+        font-size: 0.96rem;
+      }
+
+      th {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        color: #334155;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .event-name {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .event-note {
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.35;
+      }
+
+      select {
+        width: 100%;
+        min-width: 240px;
+        border-radius: 8px;
+        border: 1px solid #94a3b8;
+        padding: 10px 12px;
+        background: #fff;
+        font-size: 0.95rem;
+      }
+
+      .policy {
+        border-left: 4px solid var(--line);
+        padding-left: 12px;
+      }
+
+      .policy-title {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .policy-meaning {
+        margin: 0 0 10px;
+        color: #334155;
+        line-height: 1.35;
+      }
+
+      .policy h4 {
+        margin: 12px 0 6px;
+        font-size: 0.9rem;
+      }
+
+      .policy ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .policy li {
+        margin-bottom: 6px;
+        line-height: 1.35;
+      }
+
+      .empty {
+        color: var(--muted);
+      }
+
+      .legend {
+        margin-top: 18px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+      }
+
+      .legend h2 {
+        margin: 0 0 10px;
+        font-size: 1rem;
+      }
+
+      .legend-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .legend-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+      }
+
+      .legend-card strong {
+        color: var(--accent);
+      }
+    </style>
   </head>
   <body>
-    <a-scene>
-      <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
-      <a-sky color="#ECECEC"></a-sky>
-    </a-scene>
+    <main class="container">
+      <h1>Опросник по недопустимым событиям для генерального директора</h1>
+      <p class="subtitle">
+        Для каждого события выберите вариант реакции. В соседней колонке система покажет,
+        что влечёт за собой этот выбор: его смысл, причины, требуемые процессы, инструменты и персонал.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Недопустимое событие</th>
+              <th>Оценка (вариант реакции)</th>
+              <th>Что влечёт за собой выбор</th>
+            </tr>
+          </thead>
+          <tbody id="questionnaire-body"></tbody>
+        </table>
+      </div>
+
+      <section class="legend">
+        <h2>Шкала оценок</h2>
+        <div class="legend-grid">
+          <article class="legend-card">
+            <strong>Предотвращать</strong>
+            <p>Событие недопустимо — должны быть приняты меры по предотвращению.</p>
+          </article>
+          <article class="legend-card">
+            <strong>Снижать вероятность</strong>
+            <p>Риск допустим, но требуется контроль и снижение вероятности.</p>
+          </article>
+          <article class="legend-card">
+            <strong>Принимать риск</strong>
+            <p>Событие допустимо, специальные меры не требуются.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const events = [
+        {
+          id: 'e1',
+          title: 'Потеря критичных данных клиентов',
+          note: 'Нарушение доступности или утрата базы данных, влияющая на операционную деятельность.'
+        },
+        {
+          id: 'e2',
+          title: 'Повреждение данных в информационных системах',
+          note: 'Изменение данных вследствие ошибок, атак или сбоев оборудования.'
+        },
+        {
+          id: 'e3',
+          title: 'Длительная недоступность хранилищ',
+          note: 'Отсутствие доступа к данным в критическом временном окне.'
+        }
+      ];
+
+      const policyByChoice = {
+        prevent: {
+          title: 'Предотвращать',
+          meaning: 'Событие считается недопустимым. Приоритет — исключить его возникновение через регламенты и технические барьеры.',
+          why: [
+            'Ущерб для бизнеса и репутации критичен.',
+            'Требуется соблюдение обязательных норм и договорных требований.'
+          ],
+          processes: [
+            'Управление данными: данные должны быть классифицированы.',
+            'Резервное копирование: данные должны восстанавливаться в целевые сроки.',
+            'Контроль целостности: нужно выявлять повреждения до влияния на бизнес.'
+          ],
+          tools: [
+            'Системы резервного копирования (с регулярной проверкой восстановления).',
+            'Системы контроля целостности данных.',
+            'Системы управления хранением данных и жизненным циклом информации.'
+          ],
+          staff: [
+            'Владелец процесса данных (Data Owner).',
+            'Администратор резервного копирования / инфраструктуры.',
+            'Специалист по ИБ и внутреннему контролю.'
+          ]
+        },
+        reduce: {
+          title: 'Снижать вероятность',
+          meaning: 'Риск принимается условно: необходимы меры контроля, мониторинг и регулярное улучшение защитных механизмов.',
+          why: [
+            'Полное предотвращение экономически нецелесообразно.',
+            'Требуется баланс между затратами и уровнем риска.'
+          ],
+          processes: [
+            'Управление данными по уровням критичности.',
+            'Плановое резервное копирование для ключевых массивов данных.',
+            'Периодический контроль целостности и аудит изменений.'
+          ],
+          tools: [
+            'Системы резервного копирования с регламентом тестовых восстановлений.',
+            'Контроль целостности (журналы, сверка хешей, алерты).',
+            'Инструменты управления хранением и мониторинга инфраструктуры.'
+          ],
+          staff: [
+            'Руководитель ИТ/ИБ направления.',
+            'Ответственные администраторы систем хранения.',
+            'Владельцы бизнес-процессов для согласования остаточного риска.'
+          ]
+        },
+        accept: {
+          title: 'Принимать риск',
+          meaning: 'Событие признаётся допустимым. Специальные меры не внедряются, но решение фиксируется и периодически пересматривается.',
+          why: [
+            'Потенциальный ущерб ограничен и приемлем для компании.',
+            'Стоимость превентивных мер превышает ожидаемый эффект.'
+          ],
+          processes: [
+            'Формализация решения о принятии риска.',
+            'Базовое управление данными для минимальной прозрачности.',
+            'Упрощённый контроль целостности и готовности к восстановлению.'
+          ],
+          tools: [
+            'Базовые средства резервного копирования для критичных сегментов.',
+            'Минимальный набор контроля целостности.',
+            'Стандартные инструменты хранения данных без расширенных настроек.'
+          ],
+          staff: [
+            'Генеральный директор/риск-комитет как утверждающая сторона.',
+            'Ответственный за реестр рисков.',
+            'ИТ-специалист для базовой операционной поддержки.'
+          ]
+        }
+      };
+
+      const body = document.getElementById('questionnaire-body');
+
+      const renderPolicy = (choice) => {
+        if (!choice || !policyByChoice[choice]) {
+          return '<p class="empty">Выберите вариант из списка, чтобы увидеть последствия и требования.</p>';
+        }
+
+        const policy = policyByChoice[choice];
+        return `
+          <div class="policy">
+            <div class="policy-title">${policy.title}</div>
+            <p class="policy-meaning"><strong>Что это означает:</strong> ${policy.meaning}</p>
+            <h4>Почему</h4>
+            <ul>${policy.why.map((item) => `<li>${item}</li>`).join('')}</ul>
+            <h4>Требуемые процессы</h4>
+            <ul>${policy.processes.map((item) => `<li>${item}</li>`).join('')}</ul>
+            <h4>Инструменты</h4>
+            <ul>${policy.tools.map((item) => `<li>${item}</li>`).join('')}</ul>
+            <h4>Необходимый персонал</h4>
+            <ul>${policy.staff.map((item) => `<li>${item}</li>`).join('')}</ul>
+          </div>
+        `;
+      };
+
+      events.forEach((event) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="event-name">${event.title}</div>
+            <div class="event-note">${event.note}</div>
+          </td>
+          <td>
+            <label for="choice-${event.id}" class="event-note">Выбор генерального директора</label>
+            <select id="choice-${event.id}">
+              <option value="">— Выберите вариант —</option>
+              <option value="prevent">Предотвращать</option>
+              <option value="reduce">Снижать вероятность</option>
+              <option value="accept">Принимать риск</option>
+            </select>
+          </td>
+          <td id="details-${event.id}">
+            ${renderPolicy('')}
+          </td>
+        `;
+
+        body.appendChild(row);
+
+        const select = row.querySelector(`#choice-${event.id}`);
+        const details = row.querySelector(`#details-${event.id}`);
+
+        select.addEventListener('change', (e) => {
+          details.innerHTML = renderPolicy(e.target.value);
+        });
+      });
+    </script>
   </body>
 </html>
